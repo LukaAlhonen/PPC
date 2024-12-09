@@ -13,31 +13,23 @@ This is the function you need to implement. Quick reference:
 // Normalize matrix rows before calculating matrix product
 void normalizeMatrix(int ny, int nx, const float *data,
                      double *normalized_data) {
-  // Normalize rows (mean = 0)
+  // Normalize rows (mean = 0) + sum of squares = 1
   for (int y = 0; y < ny; ++y) {
     double mean = 0.0;
+    double l2_norm = 0.0;
     // Calculate mean of data array
     for (int x = 0; x < nx; ++x) {
-      mean += static_cast<double>(data[x + y * nx]);
+      double val = static_cast<double>(data[x + y * nx]);
+      mean += val;
     }
     mean /= nx;
 
     // Subtract mean from each value in row
     for (int x = 0; x < nx; ++x) {
-      normalized_data[x + y * nx] =
-          static_cast<double>(data[x + y * nx]) - mean;
+      double val = static_cast<double>(data[x + y * nx]) - mean;
+      normalized_data[x + y * nx] = val;
+      l2_norm += val * val;
     }
-  }
-
-  // Normalize rows again using L2 normalization (sum of squares of elements =
-  // 1)
-  for (int y = 0; y < ny; ++y) {
-    double l2_norm = 0.0;
-
-    for (int x = 0; x < nx; ++x) {
-      l2_norm += normalized_data[x + y * nx] * normalized_data[x + y * nx];
-    }
-
     l2_norm = std::sqrt(l2_norm);
 
     for (int x = 0; x < nx; ++x) {
@@ -56,7 +48,6 @@ void matrixProduct(int ny, int nx, double *normalized_data, float *result) {
             normalized_data[k + i * nx] * normalized_data[k + j * nx];
       }
       result[j + i * ny] = static_cast<float>(dot_product);
-      result[i + j * ny] = static_cast<float>(dot_product);
     }
   }
 }
